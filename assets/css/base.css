@@ -1,0 +1,49 @@
+/* ===== Base ===== */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 8px);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+body.is-locked { overflow: hidden; }
+
+h1, h2, h3, p, ul { margin: 0; padding: 0; }
+a { color: inherit; }
+svg { max-width: 100%; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; pointer-events: none;
+}
+
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+
+.muted { color: var(--muted); }
+.small { font-size: .88rem; }
+
+/* language helpers */
+.ta { font-family: var(--font-ta); line-height: 1.95; }
+.ta--muted { color: var(--muted); }
+.ta--sm { font-size: .94rem; }
+.ta--para { text-align: center; }
+[lang="ar"] { font-family: var(--font-ar); }
+
+/* SVG pattern strokes (referenced via fill:url(#geo)) */
+#geo path, #geo rect, #geo circle { stroke: var(--gold); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+}

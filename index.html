@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<!--
+  Nikkah & Valima E-Invitation · "Emerald Night"
+  Mohamed Sajid & Thasin Taj
+  ------------------------------------------------
+  index.html   → structure & content (Nikkah first, Valima second)
+  assets/css/  → tokens, base, layout, components, animations, responsive
+  assets/js/   → config.js (dates/venues for countdown, calendar, share) + app.js
+-->
+<html lang="en" data-theme="emerald">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Nikkah &amp; Valima · Sajid &amp; Thasin</title>
+  <meta name="description" content="Nikkah of K.M. Mohamed Sajid with S. Thasin Taj — Thursday, 21 January 2027, Varam Vishnu Mahal, Kanchipuram. Valima — Tuesday, 26 January 2027, Buhari's Shiraz Hall, Egmore, Chennai." />
+  <meta name="theme-color" content="#0b2a24" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Nikkah &amp; Valima Invitation · Sajid weds Thasin" />
+  <meta property="og:description" content="Nikkah: Thu 21 Jan 2027, 11.00 a.m. – 12.00 noon · Valima: Tue 26 Jan 2027, 7 p.m. onwards" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+
+  <!-- Apply saved theme + JS flag before first paint (no flash) -->
+  <script>
+    (function () {
+      var r = document.documentElement;
+      r.className += ' js';
+      try {
+        var t = localStorage.getItem('sajid-thasin-theme');
+        if (t !== 'emerald' && t !== 'ivory') t = 'emerald';
+        r.setAttribute('data-theme', t);
+        if (t === 'ivory') {
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute('content', '#fbf6ea');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <noscript><style>.intro{display:none!important}body.is-locked{overflow:auto!important}</style></noscript>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Marcellus&family=Parisienne&family=Jost:wght@300;400;500&family=Noto+Sans+Tamil:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+</head>
+<body class="is-locked">
+
+  <!-- Reusable SVG symbols -->
+  <svg width="0" height="0" class="sr-only" aria-hidden="true" focusable="false">
+    <defs>
+      <pattern id="geo" width="60" height="60" patternUnits="userSpaceOnUse">
+        <path d="M30 4 L37 23 L56 30 L37 37 L30 56 L23 37 L4 30 L23 23 Z" fill="none" stroke-width="1"/>
+        <rect x="18" y="18" width="24" height="24" fill="none" stroke-width="1" transform="rotate(45 30 30)"/>
+        <circle cx="0" cy="0" r="3" fill="none" stroke-width="1"/>
+        <circle cx="60" cy="0" r="3" fill="none" stroke-width="1"/>
+        <circle cx="0" cy="60" r="3" fill="none" stroke-width="1"/>
+        <circle cx="60" cy="60" r="3" fill="none" stroke-width="1"/>
+      </pattern>
+      <symbol id="star8" viewBox="0 0 100 100">
+        <path d="M50 0 L61 26 L85 15 L74 39 L100 50 L74 61 L85 85 L61 74 L50 100 L39 74 L15 85 L26 61 L0 50 L26 39 L15 15 L39 26 Z"/>
+      </symbol>
+      <symbol id="crescent" viewBox="0 0 100 100">
+        <path d="M62 8 A44 44 0 1 0 92 70 A36 36 0 1 1 62 8 Z"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- Twinkling stars (drawn once, opacity-only animation) -->
+  <canvas id="skyA" class="sky sky--a" aria-hidden="true"></canvas>
+  <canvas id="skyB" class="sky sky--b" aria-hidden="true"></canvas>
+
+  <!-- ================= ENVELOPE INTRO ================= -->
+  <div id="intro" class="intro" role="dialog" aria-modal="true" aria-label="Open the invitation">
+    <svg class="intro__pattern" aria-hidden="true"><rect width="100%" height="100%" fill="url(#geo)"/></svg>
+
+    <p class="intro__salam" lang="ar" dir="rtl">ٱلسَّلَامُ عَلَيْكُمْ</p>
+    <p class="intro__kicker">You are invited to a Nikkah &amp; Valima</p>
+
+    <button id="envelope" class="envelope" type="button" aria-label="Open envelope">
+      <span class="envelope__back"></span>
+      <span class="envelope__letter">
+        <span class="envelope__letter-inner">
+          <span class="envelope__bismi" lang="ar" dir="rtl">بِسْمِ ٱللَّٰهِ</span>
+          <span class="envelope__names">Sajid <i>&amp;</i> Thasin</span>
+          <span class="envelope__date">21 · 01 · 2027</span>
+        </span>
+      </span>
+      <span class="envelope__pocket"></span>
+      <span class="envelope__flap"></span>
+      <span class="envelope__seal"><span>S<em>T</em></span></span>
+    </button>
+
+    <p class="intro__hint">Tap the seal to open</p>
+  </div>
+
+ 
+<!-- IOS FLOATING BOTTOM NAVIGATION -->
+
+<!-- THEME SWITCHER -->
+<div class="theme-switcher" id="themeSwitcher">
+  <button
+    class="icon-btn"
+    id="themeToggle"
+    type="button"
+    aria-label="Change theme"
+    aria-haspopup="true"
+    aria-expanded="false"
+    aria-controls="themeMenu"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <use href="#crescent"/>
+    </svg>
+  </button>
+
+  <div class="theme-switcher__menu" id="themeMenu" role="menu" hidden>
+    <p class="theme-switcher__title">Theme</p>
+  </div>
+</div>
+
+<nav class="ios-bottom-nav" id="iosBottomNav" aria-label="Main navigation">
+
+  <a href="#home" class="ios-tab active" aria-label="Home">
+    <span class="ios-tab-icon">⌂</span>
+    <span class="ios-tab-label">Home</span>
+  </a>
+
+  <a href="#couple" class="ios-tab" aria-label="Couple">
+    <span class="ios-tab-icon">♡</span>
+    <span class="ios-tab-label">Couple</span>
+  </a>
+
+  <a href="#nikah" class="ios-tab" aria-label="Nikkah">
+    <span class="ios-tab-icon">✧</span>
+    <span class="ios-tab-label">Nikkah</span>
+  </a>
+
+  <a href="#valima" class="ios-tab" aria-label="Valima">
+    <span class="ios-tab-icon">♧</span>
+    <span class="ios-tab-label">Valima</span>
+  </a>
+
+  <a href="#family" class="ios-tab" aria-label="Family">
+    <span class="ios-tab-icon">♧</span>
+    <span class="ios-tab-label">Family</span>
+  </a>
+
+</nav>
+
+    <!-- ================= HERO ================= -->
+    <section id="home" class="hero">
+      <svg class="hero__pattern" aria-hidden="true"><rect width="100%" height="100%" fill="url(#geo)"/></svg>
+      <svg class="hero__moon" aria-hidden="true"><use href="#crescent"/></svg>
+
+      <div class="hero__arch">
+        <p class="hero__bismi reveal" lang="ar" dir="rtl">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
+        <p class="hero__caption reveal">In the name of Allah, the most beneficent, the most merciful</p>
+
+        <p class="eyebrow reveal">Nikkah &amp; Valima Invitation</p>
+        <h1 class="hero__names">
+          <span class="hero__name reveal">Mohamed Sajid</span>
+          <span class="hero__amp reveal">&amp;</span>
+          <span class="hero__name reveal">Thasin Taj</span>
+        </h1>
+
+        <div class="ornament reveal" aria-hidden="true">
+          <span></span><svg><use href="#star8"/></svg><span></span>
+        </div>
+
+        <div class="hero__events reveal">
+          <p class="chip"><b>Nikkah</b> <span>Thursday · 21 January 2027</span></p>
+          <p class="chip"><b>Valima</b> <span>Tuesday · 26 January 2027</span></p>
+        </div>
+        <p class="hero__hijri reveal">13 &amp; 18 Shaban 1448 AH</p>
+      </div>
+
+      <a href="#couple" class="scroll-hint" aria-label="Scroll to details">
+        <span>Scroll</span><i></i>
+      </a>
+    </section>
+
+    <!-- ================= COUPLE ================= -->
+    <section id="couple" class="section">
+      <div class="container">
+        <header class="section__head reveal">
+          <p class="eyebrow">Assalamu Alaikum (Warah)</p>
+          <h2 class="section__title">With the blessings of Allah</h2>
+          <p class="section__lead">
+            <strong>Mr. K.T. Mohamed Buhari &amp; Mrs. K.M. Fathima</strong> request the pleasure of your presence
+            with your family at the marriage (Nikkah) of their beloved younger son
+          </p>
+        </header>
+
+        <div class="couple">
+          <article class="person card reveal reveal--left">
+            <div class="person__badge"><svg aria-hidden="true"><use href="#star8"/></svg><span>S</span></div>
+            <p class="person__role">The Groom</p>
+            <h3 class="person__name">K.M. Mohamed Sajid</h3>
+            <p class="person__degree">B.Tech.</p>
+            <p class="person__parents">Younger son of K.T. Mohamed Buhari &amp; K.M. Fathima</p>
+            <p class="person__extra">TCR Arabia Co. Ltd., Jubail, KSA</p>
+            <p class="person__extra">Grandson of (Late) Haji K.A. Thameem Ansari</p>
+          </article>
+
+          <div class="couple__with reveal" aria-hidden="true"><span>with</span></div>
+
+          <article class="person card reveal reveal--right">
+            <div class="person__badge"><svg aria-hidden="true"><use href="#star8"/></svg><span>T</span></div>
+            <p class="person__role">The Bride</p>
+            <h3 class="person__name">S. Thasin Taj</h3>
+            <p class="person__parents">Beloved daughter of S. Shakir Basha &amp; S. Mumtaj</p>
+            <p class="person__extra">Musaravakkam, Kanchipuram</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 1 · NIKKAH ================= -->
+    <section id="nikah" class="section section--alt">
+      <div class="container">
+        <header class="section__head reveal">
+          <p class="eyebrow">Insha Allah · 1</p>
+          <h2 class="section__title">The Nikkah</h2>
+          <p class="section__lead">Nikkah Majlis, followed by a feast. Your presence and duas for the couple are our greatest gift.</p>
+        </header>
+
+        <div class="info-grid">
+          <article class="info card reveal">
+            <svg class="info__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+            <h3 class="info__title">Date</h3>
+            <p>Thursday, 21 January 2027</p>
+            <p class="muted">13 Shaban, Hijri 1448</p>
+          </article>
+          <article class="info card reveal">
+            <svg class="info__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            <h3 class="info__title">Time</h3>
+            <p>Nikkah between</p>
+            <p class="info__big">11.00 a.m. – 12.00 noon</p>
+          </article>
+          <article class="info card reveal">
+            <svg class="info__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <h3 class="info__title">Venue</h3>
+            <p><strong>Varam Vishnu Mahal</strong></p>
+            <p class="muted">A79, Kanchipuram – Vellore Highway, Sirukaveripakkam, Kanchipuram – 631502</p>
+          </article>
+        </div>
+
+        <div class="countdown reveal" data-event="nikah" aria-live="off">
+          <div class="countdown__item"><span class="countdown__num" data-cd="days">00</span><span class="countdown__label">Days</span></div>
+          <div class="countdown__item"><span class="countdown__num" data-cd="hours">00</span><span class="countdown__label">Hours</span></div>
+          <div class="countdown__item"><span class="countdown__num" data-cd="mins">00</span><span class="countdown__label">Mins</span></div>
+          <div class="countdown__item"><span class="countdown__num" data-cd="secs">00</span><span class="countdown__label">Secs</span></div>
+        </div>
+        <p class="countdown__done" data-done-for="nikah" hidden></p>
+
+        <div class="actions reveal">
+          <a class="btn btn--solid" href="https://www.google.com/maps/dir/?api=1&amp;destination=12.86458437,79.66607817" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            Directions
+          </a>
+          <button class="btn" type="button" data-calendar="nikah">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>
+            Save the date
+          </button>
+          <button class="btn" type="button" data-share>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+            Share
+          </button>
+        </div>
+
+        <div class="map card reveal">
+          <iframe title="Map to Varam Vishnu Mahal, Kanchipuram" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1939.9136944480244!2d79.66607816629903!3d12.86458437358453!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a52c3f39aefb1d9%3A0x87447e3689f1456a!2sVaram%20Vishnu%20Mahal-%20Garden%20Hall!5e1!3m2!1sen!2sin!4v1795582279653!5m2!1sen!2sin" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 2 · VALIMA ================= -->
+    <section id="valima" class="section">
+      <div class="container">
+        <header class="section__head reveal">
+          <p class="eyebrow">Insha Allah · 2</p>
+          <h2 class="section__title">The Valima</h2>
+          <p class="section__lead">The auspicious Valima (Reception) of the couple</p>
+        </header>
+
+        <article class="letter card reveal">
+          <p class="letter__lead">
+            In the name of Allah, the Omnipotent, and with the blessings of Prophet Mohammad (Sallallahu a.wasallam)<br />
+            <strong>Mrs. &amp; Mr. Alhaj. K.T. Mohamed Hameem, B.A.</strong><br />
+            <span class="muted small">(Asst. Secretary, TN. Wakf Board, Rtd.)</span>
+          </p>
+          <p class="letter__lead" style="margin-top:1rem">
+            solicit your august presence with family and friends on the auspicious <strong>Valima (Reception)</strong>
+            of their younger brother’s beloved son
+          </p>
+
+          <div class="letter__couple">
+            <div class="letter__side">
+              <p class="muted small">Selvan</p>
+              <p class="letter__name">K.M. Mohamed Sajid<small>B.Tech.</small></p>
+              <p class="muted small">TCR Arabia Co. Ltd., Jubail, KSA<br />Grandson of (Late) Haji K.A. Thameem Ansari<br />S/o K.T. Mohamed Buhari (Southern Railway, Chennai – 23)</p>
+            </div>
+            <svg class="letter__star" aria-hidden="true"><use href="#star8"/></svg>
+            <div class="letter__side">
+              <p class="muted small">Selvi</p>
+              <p class="letter__name">S. Thasin Taj</p>
+              <p class="muted small">D/o S. Shakir Basha<br />Musaravakkam, Kanchipuram</p>
+            </div>
+          </div>
+        </article>
+
+        <div class="info-grid event-block">
+          <article class="info card reveal">
+            <svg class="info__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+            <h3 class="info__title">Date</h3>
+            <p>Tuesday Evening, 26 January 2027</p>
+            <p class="muted">18 Shaban, Hijri 1448</p>
+          </article>
+          <article class="info card reveal">
+            <svg class="info__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            <h3 class="info__title">Dinner</h3>
+            <p>Valima dinner from</p>
+            <p class="info__big">7 p.m. onwards</p>
+          </article>
+          <article class="info card reveal">
+            <svg class="info__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <h3 class="info__title">Venue</h3>
+            <p><strong>Buhari’s Shiraz Hall</strong></p>
+            <p class="muted">14, Whannels Road, Egmore (Next to Albert Theater), Chennai – 600 008</p>
+          </article>
+        </div>
+
+        <div class="countdown reveal" data-event="valima" aria-live="off">
+          <div class="countdown__item"><span class="countdown__num" data-cd="days">00</span><span class="countdown__label">Days</span></div>
+          <div class="countdown__item"><span class="countdown__num" data-cd="hours">00</span><span class="countdown__label">Hours</span></div>
+          <div class="countdown__item"><span class="countdown__num" data-cd="mins">00</span><span class="countdown__label">Mins</span></div>
+          <div class="countdown__item"><span class="countdown__num" data-cd="secs">00</span><span class="countdown__label">Secs</span></div>
+        </div>
+        <p class="countdown__done" data-done-for="valima" hidden></p>
+
+        <div class="actions reveal">
+          <a class="btn btn--solid" href="https://www.google.com/maps/dir/?api=1&amp;destination=13.07715601,80.26225636" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            Directions
+          </a>
+          <button class="btn" type="button" data-calendar="valima">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>
+            Save the date
+          </button>
+          <button class="btn" type="button" data-share>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+            Share
+          </button>
+        </div>
+
+        <div class="map card reveal">
+          <iframe title="Map to Buhari Shiraz Hall, Egmore, Chennai" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1938.2566439081372!2d80.26225635766039!3d13.077156012842535!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a526608e8ed0805%3A0x7982dbf65c89c482!2sBuhari%20Shiraz%20Hall!5e1!3m2!1sen!2sin!4v1795581277576!5m2!1sen!2sin" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= QURAN & DUA ================= -->
+    <section id="dua" class="section section--alt">
+      <div class="container container--narrow">
+        <div class="quote card reveal">
+          <svg class="quote__star" aria-hidden="true"><use href="#star8"/></svg>
+          <p class="ta" lang="ta">மனிதர்களே, உங்கள் ரப்பை நீங்கள் அஞ்சிக்கொள்ளுங்கள். அவன் எத்தகையவன் என்றால்
+            உங்களை ஒரே ஆத்மாவிலிருந்து படைத்தான்; அதிலிருந்து அதற்குரிய இணையை (மனைவியை) படைத்தான்.</p>
+          <p class="quote__ref">அல்குர்ஆன் 4:1</p>
+        </div>
+
+        <div class="dua reveal">
+          <p class="ta ta--muted" lang="ta">நபிகள் நாயகம் (ஸல்) அவர்கள் மணமக்களுக்கு ஓதிய துஆ</p>
+          <p class="dua__arabic" lang="ar" dir="rtl">بَارَكَ ٱللَّٰهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ</p>
+          <p class="ta" lang="ta"><strong>பொருள்:</strong> அல்லாஹ் உங்களுக்கு பரக்கத் செய்வானாக. உங்கள் இருவர் மீதும்
+            ரஹ்மத்தை இறக்கியருள்வானாக. இன்னும் உங்கள் இருவரையும் நன்மையான காரியங்களில் ஒன்று சேர்ந்து வாழ நன்மை செய்வானாக.</p>
+          <p class="dua__en">“May Allah bless you, shower His blessings upon you, and join you both together in goodness.”</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAMIL NIKKAH INVITATION ================= -->
+    <section id="tamil" class="section" lang="ta">
+      <div class="container container--narrow">
+        <header class="section__head reveal">
+          <p class="eyebrow eyebrow--ta">பிஸ்மில்லாஹிர் ரஹ்மானிர் ரஹீம்</p>
+          <h2 class="section__title section__title--ta">நிக்காஹ் (திருமண) அழைப்பிதழ்</h2>
+        </header>
+
+        <article class="letter card reveal">
+          <p class="ta ta--para"><strong>அன்புடையீர்!</strong><br/>
+            அஸ்ஸலாமு அலைக்கும் (வரஹ்.)<br/>
+            எல்லாம் வல்ல அல்லாஹ்வின் பேரருளாலும் நபிகள் நாயகம் (ஸல்) அவர்களின் துஆ பரக்கத்தாலும்
+            இன்ஷா அல்லாஹ் நிகழும் ஹிஜ்ரி 1448-ஆம் ஆண்டு <strong>ஷாபான் மாதம் பிறை 13 (21-01-2027)
+            வியாழக்கிழமை</strong> காலை 11.00 மணிக்கு மேல் 12.00 மணிக்குள்</p>
+
+          <div class="letter__couple">
+            <div class="letter__side">
+              <p class="ta ta--muted ta--sm">K.T. முஹம்மது புகாரி – K.M. பாத்திமா ஆகியோரின் இளைய மகனுமாகிய தீன்குலச்செல்வன்</p>
+              <p class="letter__name">K.M. முஹம்மது சாஜித்<small>B.Tech.</small></p>
+              <p class="ta ta--muted ta--sm">என்கிற மணமகனுக்கும்</p>
+            </div>
+            <svg class="letter__star" aria-hidden="true"><use href="#star8"/></svg>
+            <div class="letter__side">
+              <p class="ta ta--muted ta--sm">S. ஷாகிர் பாஷா – S. மும்தாஜ் அவர்களின் அன்பு மகளுமாகிய தீன்குலச்செல்வி</p>
+              <p class="letter__name">S. தாசின் தாஜ்</p>
+              <p class="ta ta--muted ta--sm">என்கிற மணமகளுக்கும்</p>
+            </div>
+          </div>
+
+          <p class="ta ta--para">இன்ஷா அல்லாஹ், நிக்காஹ் (திருமணம்) செய்ய பெரியோர்களால் நிச்சயித்த வண்ணம்
+            காஞ்சிபுரம் – 631502 சிறுகாவேரிப்பாக்கம், காஞ்சிபுரம் – வேலூர் நெடுஞ்சாலை, எண் ஏ 79,
+            <strong>வரம் விஷ்ணு மஹாலில்</strong> வைத்து நடைபெறும் நிக்காஹ் மஜ்லிஸிலும் அதைத் தொடர்ந்து நடைபெறும்
+            விருந்து உபசரிப்பிலும் தாங்கள் குடும்பத்துடன் வருகை தந்து மணமக்களின் ஈருலக நல்வாழ்விற்கு
+            துஆ செய்து சிறப்பிக்குமாறு அன்புடன் அழைக்கிறோம்.</p>
+
+          <div class="letter__sign">
+            <p class="ta ta--muted ta--sm">தங்கள் அன்புள்ள</p>
+            <p class="letter__signname">K.T. முஹம்மது புஹாரி</p>
+            <p class="ta ta--muted ta--sm">11/5, கரீம் சுபேதார் தெரு, இராயப்பேட்டை, சென்னை – 600 014.<br/>போன்: 8220330661</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= FAMILY (tabs) ================= -->
+    <section id="family" class="section section--alt">
+      <div class="container container--narrow">
+        <header class="section__head reveal">
+          <p class="eyebrow">With love &amp; duas</p>
+          <h2 class="section__title">Family &amp; Well-wishers</h2>
+        </header>
+
+        <div class="tabs reveal">
+          <div class="tabs__list" role="tablist" aria-label="Family lists">
+            <button class="tab" role="tab" type="button" id="tab-nikah" aria-controls="panel-nikah">Nikkah</button>
+            <button class="tab" role="tab" type="button" id="tab-valima" aria-controls="panel-valima">Valima</button>
+          </div>
+
+          <div class="tabs__panels">
+            <div class="tabs__panel" role="tabpanel" id="panel-nikah" aria-labelledby="tab-nikah">
+              <p class="names__intro ta" lang="ta">அவ்வண்ணமே கோரும்</p>
+              <ul class="names">
+                <li>K.M. Suhaila</li>
+                <li>K.M. Sulaiman</li>
+                <li>K.F. Zainab</li>
+                <li>K.A. Afsiha</li>
+                <li>M.A. Ahmed Mohammed</li>
+                <li>K.A. Asra</li>
+              </ul>
+              <p class="names__intro ta" lang="ta" style="margin-top:1.4rem">தங்கள் நல்வரவை இனிதே விரும்பும் சுற்றமும் நட்பும்</p>
+            </div>
+
+            <div class="tabs__panel" role="tabpanel" id="panel-valima" aria-labelledby="tab-valima" hidden>
+              <p class="names__intro">With best compliments from</p>
+              <ul class="names">
+                <li>Haji. K.T. Mohamed Mohideen</li>
+                <li>Haji. M.S. Arief Bhai</li>
+                <li>S. Shakir Basha</li>
+                <li>R.S. Madhar</li>
+                <li>K.M. Fahim Abdullah</li>
+                <li>K.M. Mohamed Saleem</li>
+                <li>K.M. Ahmed Bilal</li>
+                <li>Haji. Shaik Peer Mohamed</li>
+                <li>Haji. Mohamed Sabeen</li>
+                <li>Haji. Mohamed Ismail</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= HOSTS ================= -->
+    <section class="section section--tight">
+      <div class="container">
+        <div class="hosts">
+          <article class="host card reveal">
+            <p class="eyebrow">Nikkah · With warm regards</p>
+            <p class="host__name">K.T. Mohamed Buhari</p>
+            <p class="muted">11/5, Karim Subedar Street, Royapettah, Chennai – 600 014</p>
+            <p class="host__phones"><a href="tel:+918220330661">8220330661</a></p>
+          </article>
+          <article class="host card reveal">
+            <p class="eyebrow">Valima · With warm regards</p>
+            <p class="host__name">Alhaj. K.T. Mohamed Hameem, B.A.</p>
+            <p class="host__role">Asst. Secretary, TN. Wakf Board (Rtd.)</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <svg class="footer__moon" aria-hidden="true"><use href="#crescent"/></svg>
+      <p class="footer__script">We look forward to your presence</p>
+      <p class="footer__tamil ta" lang="ta">தங்கள் நல்வரவை இனிதே விரும்பும் சுற்றமும் நட்பும்</p>
+      <p class="footer__arabic" lang="ar" dir="rtl">جَزَاكُمُ ٱللَّٰهُ خَيْرًا</p>
+      <p class="muted small">Mohamed Sajid &amp; Thasin Taj · 21.01.2027 &amp; 26.01.2027</p>
+      <p class="footer__credit">Design &amp; Developed by <a href="https://www.yusuffux.com" target="_blank" rel="noopener">Mohammed Yusuff</a></p>
+    </footer>
+  </main>
+
+  <button id="toTop" class="to-top icon-btn" type="button" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/></svg>
+  </button>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
